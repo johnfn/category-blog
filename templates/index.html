@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title> blog - johnfn </title>
+  </head>
+  <body>
+    <p>Dis is a blog yo.</p>
+
+    {% for entry in entries %}
+      <div>
+        <h2> {{ entry.title }} </h2>
+        {{ entry.content }}
+      </div>
+    {% endfor %}
+  </body>
+</html>
