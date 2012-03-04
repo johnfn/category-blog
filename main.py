@@ -33,6 +33,16 @@ def new_entry(title, text):
       [title, text, datetime.datetime.now()])
   g.db.commit()
 
+@app.route("/admin")
+def admin():
+  return render_template('admin.html')
+
+@app.route("/add", methods=['POST'])
+def add_entry():
+  new_entry(request.form['title'], request.form['content'])
+
+  return redirect(url_for('index'))
+
 @app.route("/")
 def index():
   cur = g.db.execute('select title, text, created from entries order by id desc')
