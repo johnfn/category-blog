@@ -1,18 +1,22 @@
 <!DOCTYPE HTML>
 <html>
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
     <title> admin - johnfn </title>
   </head>
   <body>
-	<form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-      <dl>
-        <dt>Title:
-        <dd><input type=text size=30 name=title>
-        <dt>Text:
-        <dd><textarea name=content rows=5 cols=40></textarea>
-        <dd><input type=submit value=Share>
-      </dl>
-    </form>
-
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+        <dl>
+          <dt>Title:
+          <dd><input type=text style="width: 500px" name=title value="{{ title }}">
+          <dd><input type=hidden name=id value="{{ id }}">
+          <dt>Text:
+          <dd><textarea name=content rows=5 style="width: 500px; height: 500px">{{ content }}</textarea>
+          <dd><input type=submit value=Post>
+        </dl>
+      </form>
   </body>
 </html>

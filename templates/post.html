@@ -10,20 +10,14 @@
   <body>
     <div class="container">
       <div class="hero-unit">
-        <h1>johnfn's blog</h1>
+        <a href="/"><h1>johnfn's blog</h1></a>
         <p> programming and the meaning of life </p>
       </div>
 
       <div class="row">
         <div class="span8">
-          {% for entry in entries %}
-            <div class="entry">
-              <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
-              <span class="datetime"> {{ entry.date }} </span>
-              <a href="/{{ entry.id }}/edit"> (edit) </a>
-              <div> {{ entry.content }} </div>
-            </div>
-          {% endfor %}
+          <h1> {{ entry.title }} </h1>
+          <div> {{ entry.content }} </div>
         </div>
       </div>
     </div>

@@ -28,10 +28,16 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-def new_entry(title, text):
-  g.db.execute('insert into entries (title, text, created) values (?, ?, ?)',
-      [title, text, datetime.datetime.now()])
+def new_entry(title, text, id):
+  if id is None:
+    g.db.execute('insert into entries (title, text, created) values (?, ?, ?)',
+        [title, text, datetime.datetime.now()])
+  else:
+    g.db.execute('update entries set title = ?, text = ?, created = ? where id = ?',
+        [title, text, datetime.datetime.now(), id])
+
   g.db.commit()
+
 
 @app.route("/admin")
 def admin():
@@ -39,14 +45,28 @@ def admin():
 
 @app.route("/add", methods=['POST'])
 def add_entry():
-  new_entry(request.form['title'], request.form['content'])
+  new_entry(request.form['title'], request.form['content'], request.form['id'])
 
   return redirect(url_for('index'))
 
+@app.route('/<int:id>/edit')
+def edit(id):
+  cur = g.db.execute('select title, text from entries where id = %d' % id)
+  entry = cur.fetchall()[0]
+
+  return render_template('admin.html', title = entry[0], content = entry[1], id = id)
+
+@app.route('/<int:id>')
+def post(id):
+  cur = g.db.execute('select title, text, created, id from entries where id = %d order by id desc' % id)
+  entries = [{title: row[0], content: row[1], date: row[2], id: row[3]} for row in cur.fetchall()]
+
+  return render_template('post.html', entry = entries[0], title = "", content = "")
+
 @app.route("/")
 def index():
-  cur = g.db.execute('select title, text, created from entries order by id desc')
-  entries = [dict(title=row[0], content=row[1], date=row[2]) for row in cur.fetchall()]
+  cur = g.db.execute('select title, text, created, id from entries order by id desc')
+  entries = [dict(title=row[0], content=row[1], date=row[2], id=row[3]) for row in cur.fetchall()]
 
   return render_template('index.html', entries=entries)
 

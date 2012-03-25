@@ -1,0 +1,15 @@
+body {
+  border-left: 20px;
+}
+
+.entry {
+  margin-bottom: 20px;
+}
+
+.post-title {
+  border-bottom: 1px solid #eee;
+}
+
+.datetime {
+  color: #aaa;
+}

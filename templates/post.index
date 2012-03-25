@@ -20,7 +20,6 @@
             <div class="entry">
               <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
               <span class="datetime"> {{ entry.date }} </span>
-              <a href="/{{ entry.id }}/edit"> (edit) </a>
               <div> {{ entry.content }} </div>
             </div>
           {% endfor %}
