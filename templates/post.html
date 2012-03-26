@@ -1,25 +1,13 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.css"> </link>
-    <link rel="stylesheet" type="text/css" href="static/css/style.css"> </link>
-    <title> blog - johnfn </title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="hero-unit">
-        <a href="/"><h1>johnfn's blog</h1></a>
-        <p> programming and the meaning of life </p>
-      </div>
+{% extends 'base.html' %}
+{% block body %}
+<div class="hero-unit">
+  <a href="/"><h1>indirection</h1></a>
+</div>
 
-      <div class="row">
-        <div class="span8">
-          <h1> {{ entry.title }} </h1>
-          <div> {{ entry.content }} </div>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+<div class="row">
+  <div class="span8">
+    <h1> {{ entry.title }} </h1>
+    <div> {{ entry.content }} </div>
+  </div>
+</div>
+{% endblock %}

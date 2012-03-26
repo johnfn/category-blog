@@ -1,45 +1,30 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.css"> </link>
-    <link rel="stylesheet" type="text/css" href="static/css/style.css"> </link>
-    <title> blog - johnfn </title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="hero-unit">
-        <h1>indirection</h1>
-        <p> </p>
+{% extends 'base.html' %}
+{% block body %}
+<div class="hero-unit">
+  <h1>indirection</h1>
+  <p> </p>
+</div>
+
+<div class="row">
+  <div class="span8">
+    {% if auth %}
+      <span class="new-entry"> <a href="{{ url_for('admin') }} "> new </a> </span>
+      <span class="new-entry"> <a href="{{ url_for('logout') }} "> logout </a> </span>
+    {% endif %}
+
+    {% for entry in entries %}
+      <div>
+        <span class="entry-title"> <a href="/{{ entry.id }}"> {{ entry.title }} </a> </span>
+        {% if auth %}
+          <a href="/{{ entry.id }}/edit"> (edit) </a>
+          <a href="/{{ entry.id }}/delete"> (delete) </a>
+        {% endif %}
+        <span class="datetime"> ({{ entry.date }}) </span>
+        <span> 
+          ({% for tag in entry.tags %}<a href="/tagged/{{ tag }}">{{ tag }}</a>{% endfor %}) 
+        </span>
       </div>
-
-      <div class="row">
-        <div class="span8">
-          {% if auth %}
-            <span class="new-entry"> <a href="{{ url_for('admin') }} "> new </a> </span>
-            <span class="new-entry"> <a href="{{ url_for('logout') }} "> logout </a> </span>
-          {% endif %}
-
-          {% for entry in entries %}
-            <div>
-              <span class="entry-title"> <a href="/{{ entry.id }}"> {{ entry.title }} </a> </span>
-              {% if auth %}
-                <a href="/{{ entry.id }}/edit"> (edit) </a>
-                <a href="/{{ entry.id }}/delete"> (delete) </a>
-              {% endif %}
-              <span class="datetime"> ({{ entry.date }}) </span>
-              <span> 
-                ({% for tag in entry.tags %}<a href="/tagged/{{ tag }}">{{ tag }}</a>{% endfor %}) 
-              </span>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <div id="footer">
-      made by johnfn. this blog is open source software.
-    </div>
-  </body>
-</html>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
