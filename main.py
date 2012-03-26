@@ -28,15 +28,42 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-def new_entry(title, text, id):
+def tag_id(value):
+  cur = g.db.execute('select id from tags where value = ?', [value])
+  elems = cur.fetchall()
+
+  if len(elems) == 0:
+    g.db.execute('insert into tags (value) values (?)', [value])
+    g.db.commit()
+
+    cur = g.db.execute('select id from tags where value = ?', [value])
+    elems = cur.fetchall()
+
+  return elems[0][0]
+
+def new_entry(title, text, id, date, tags):
+  if date is None: date = datetime.datetime.now().strftime("%m/%d/%Y %I:%M%p")
+
   if id is None:
     g.db.execute('insert into entries (title, text, created) values (?, ?, ?)',
-        [title, text, datetime.datetime.now()])
+        [title, text, date])
   else:
+    #TODO: This actually makes the name of this function incorrect.
     g.db.execute('update entries set title = ?, text = ?, created = ? where id = ?',
-        [title, text, datetime.datetime.now(), id])
+        [title, text, date, id])
 
   g.db.commit()
+
+  # read id back
+  id = g.db.execute('select id from entries where title = ? and text = ?', [title, text]).fetchall()[0][0]
+
+  if tags is not None:
+    #TODO: Remove all old tagz.
+
+    taglist = [tag.strip() for tag in tags.split(",")]
+
+    for tag in taglist:
+      g.db.execute('insert into entry_tags (entryid, tagid) values (?, ?)', [id, tag_id(tag)])
 
 
 @app.route("/admin")
@@ -45,28 +72,33 @@ def admin():
 
 @app.route("/add", methods=['POST'])
 def add_entry():
-  new_entry(request.form['title'], request.form['content'], request.form['id'])
+  new_entry( request.form['title']
+           , request.form['content']
+           , request.form['id'] if request.form['id'].strip() != "" else None
+           , request.form['date'] + " " + request.form['time'] if request.form['date'] else None
+           , request.form['tags'] if request.form['tags'].strip() != "" else None)
 
   return redirect(url_for('index'))
 
 @app.route('/<int:id>/edit')
 def edit(id):
-  cur = g.db.execute('select title, text from entries where id = %d' % id)
+  cur = g.db.execute('select title, text, created from entries where id = %d' % id)
   entry = cur.fetchall()[0]
+  date, time = entry[2].split(" ")
 
-  return render_template('admin.html', title = entry[0], content = entry[1], id = id)
+  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time)
 
 @app.route('/<int:id>')
 def post(id):
-  cur = g.db.execute('select title, text, created, id from entries where id = %d order by id desc' % id)
-  entries = [{title: row[0], content: row[1], date: row[2], id: row[3]} for row in cur.fetchall()]
+  cur = g.db.execute('select title, text, created, id from entries where id = %d order by created asc' % id)
+  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
 
   return render_template('post.html', entry = entries[0], title = "", content = "")
 
 @app.route("/")
 def index():
   cur = g.db.execute('select title, text, created, id from entries order by id desc')
-  entries = [dict(title=row[0], content=row[1], date=row[2], id=row[3]) for row in cur.fetchall()]
+  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
 
   return render_template('index.html', entries=entries)
 

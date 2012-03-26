@@ -2,9 +2,16 @@
 <html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $("#inputdate").datepicker();
+      });
+    </script>
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
     <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/ui-lightness/jquery-ui-1.8.18.custom.min.css"> </link>
     <title> admin - johnfn </title>
   </head>
   <body>
@@ -15,6 +22,10 @@
           <dd><input type=hidden name=id value="{{ id }}">
           <dt>Text:
           <dd><textarea name=content rows=5 style="width: 500px; height: 500px">{{ content }}</textarea>
+          <dt>Tags:
+          <dd><input type=text style="width: 500px" name=tags value="{{ tags }}">
+          <dt>Date:
+          <dd><input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" value="{{ time }}">
           <dd><input type=submit value=Post>
         </dl>
       </form>
