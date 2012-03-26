@@ -10,8 +10,8 @@
   <body>
     <div class="container">
       <div class="hero-unit">
-        <h1>johnfn's blog</h1>
-        <p> but only {{ tag }}-tagged posts </p>
+        <h1>indirection</h1>
+        <p> {{ tag }} </p>
       </div>
 
       <div class="row">
@@ -21,6 +21,7 @@
               <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
               <span class="datetime"> {{ entry.date }} </span>
               <a href="/{{ entry.id }}/edit"> (edit) </a>
+              <a href="/{{ entry.id }}/delete"> (delete) </a>
               <div> {{ entry.content }} </div>
             </div>
           {% endfor %}

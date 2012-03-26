@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $("#inputdate").datepicker();
+      });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/ui-lightness/jquery-ui-1.8.18.custom.min.css"> </link>
+    <title> admin - johnfn </title>
+  </head>
+  <body>
+    <form action="{{ url_for('login') }}" method=post class=add-entry>
+        <dl>
+          <dt>Username:
+          <dd><input type=text name=username value="">
+          <dt>Password:
+          <dd><input type=text name=password value="">
+          <dd><input type=submit value=Post>
+        </dl>
+      </form>
+  </body>
+</html>

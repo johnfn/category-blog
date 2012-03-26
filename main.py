@@ -1,12 +1,16 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response
+from functools import wraps
 from sqlite3 import dbapi2 as sqlite3
 from contextlib import closing
 import datetime
 
+DATABASE = 'posts.db'
+SECRET_KEY = open('secretkey').readlines()[0]
+PASSWORD = open('password').readlines()[0][:-1]
+
 app = Flask(__name__)
 app.debug=True
-
-DATABASE = 'posts.db'
+app.secret_key = SECRET_KEY
 
 def connect_db():
   return sqlite3.connect(DATABASE)
@@ -22,11 +26,11 @@ def teardown_request(ex):
     g.db.close()
 
 def init_db():
-    """Creates the database tables."""
-    with closing(connect_db()) as db:
-        with app.open_resource('schema.sql') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
+  """Creates the database tables."""
+  with closing(connect_db()) as db:
+    with app.open_resource('schema.sql') as f:
+      db.cursor().executescript(f.read())
+    db.commit()
 
 def tag_id(value):
   cur = g.db.execute('select id from tags where value = ?', [value])
@@ -65,13 +69,37 @@ def new_entry(title, text, id, date, tags):
     for tag in taglist:
       g.db.execute('insert into entry_tags (entryid, tagid) values (?, ?)', [id, tag_id(tag)])
 
+def check_auth(username, password):
+  return username == 'johnfn' and password == [l[:-1] for l in file('password')][0]
+
+def authenticate():
+  return Response('Are you trying to hack my website? :) email me at johnfn@gmail.com' , 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 @app.route("/admin")
 def admin():
+  if session.get('authed') is None: authenticate()
+
   return render_template('admin.html')
+
+@app.route("/login", methods=['POST'])
+def login_post():
+  if request.form['username'] == "johnfn" and request.form['password'] == "password":
+    session['authed'] = True
+    return redirect(url_for('index'))
+
+@app.route("/logout")
+def logout():
+  session.pop('authed', None)
+  return redirect(url_for('index'))
+
+@app.route("/login", methods=['GET'])
+def login():
+  return render_template("login.html")
 
 @app.route("/add", methods=['POST'])
 def add_entry():
+  if session.get('authed') is None: authenticate()
+
   new_entry( request.form['title']
            , request.form['content']
            , request.form['id'] if request.form['id'].strip() != "" else None
@@ -82,6 +110,8 @@ def add_entry():
 
 @app.route('/<int:id>/edit')
 def edit(id):
+  if session.get('authed') is None: authenticate()
+
   cur = g.db.execute('select title, text, created from entries where id = %d' % id)
   entry = cur.fetchall()[0]
   date, time = entry[2].split(" ")
@@ -117,6 +147,34 @@ def tagged(tag):
 
   return render_template('tagged.html', entries=entries, tag=tag)
 
+def delete_post(id):
+  g.db.execute('delete from entries where id = ?', [id])
+  g.db.execute('delete from entry_tags where entryid = ?', [id])
+  g.db.commit()
+
+@app.route('/<int:id>/delete/definitely', methods=['POST'])
+def definitely_delete(id):
+  if session.get('authed') is None: authenticate()
+
+  delete_post(id)
+
+  return redirect(url_for('index'))
+
+@app.route('/dump')
+def dump():
+  result = ""
+
+  for line in g.db.iterdump():
+    result += line + '<br>'
+
+  return render_template('dump.html', dump=result)
+
+@app.route('/<int:id>/delete')
+def delete(id):
+  if session.get('authed') is None: authenticate()
+
+  return render_template('delete.html', id=id)
+
 @app.route("/")
 def index():
   cur = g.db.execute('select title, text, created, id from entries order by id desc')
@@ -124,7 +182,7 @@ def index():
 
   entries = [merge(e, all_tags(e)) for e in entries]
 
-  return render_template('index.html', entries=entries)
+  return render_template('index.html', entries=entries, auth=session.get('authed'))
 
 if __name__ == "__main__":
     app.run()

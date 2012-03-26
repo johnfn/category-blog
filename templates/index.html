@@ -10,28 +10,36 @@
   <body>
     <div class="container">
       <div class="hero-unit">
-        <h1>johnfn's blog</h1>
-        <p> programming and the meaning of life </p>
+        <h1>indirection</h1>
+        <p> </p>
       </div>
 
       <div class="row">
         <div class="span8">
+          {% if auth %}
+            <span class="new-entry"> <a href="{{ url_for('admin') }} "> new </a> </span>
+            <span class="new-entry"> <a href="{{ url_for('logout') }} "> logout </a> </span>
+          {% endif %}
+
           {% for entry in entries %}
-            <div class="entry">
-              <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
-              <span class="datetime"> {{ entry.date }} </span>
-              <a href="/{{ entry.id }}/edit"> (edit) </a>
-              <div> {{ entry.content }} </div>
-              <div> 
-                tags: 
-                {% for tag in entry.tags %}
-                  {{ tag }}
-                {% endfor %}
-              </div>
+            <div>
+              <span class="entry-title"> <a href="/{{ entry.id }}"> {{ entry.title }} </a> </span>
+              {% if auth %}
+                <a href="/{{ entry.id }}/edit"> (edit) </a>
+                <a href="/{{ entry.id }}/delete"> (delete) </a>
+              {% endif %}
+              <span class="datetime"> ({{ entry.date }}) </span>
+              <span> 
+                ({% for tag in entry.tags %}<a href="/tagged/{{ tag }}">{{ tag }}</a>{% endfor %}) 
+              </span>
             </div>
           {% endfor %}
         </div>
       </div>
+    </div>
+
+    <div id="footer">
+      made by johnfn. this blog is open source software.
     </div>
   </body>
 </html>

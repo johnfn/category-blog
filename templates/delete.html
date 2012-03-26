@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block body %}
+  <form action="{{ url_for('definitely_delete', id=id) }}" method=post class=add-entry>
+      <dl>
+        <dt>Are you sure?
+        <dd><input type=submit value="Yes.">
+      </dl>
+    </form>
+{% endblock %}
