@@ -88,6 +88,17 @@ def edit(id):
 
   return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time)
 
+def merge(o1, o2):
+  return dict(o1.items() + o2.items())
+
+def tag_value(tagid):
+  return g.db.execute('select value from tags where id = ?', [tagid]).fetchall()[0][0]
+
+def all_tags(e):
+  tag_list = [tag_value(entry[0]) for entry in g.db.execute('select tagid from entry_tags where entryid = ?', [e['id']])]
+
+  return {'tags': tag_list}
+
 @app.route('/<int:id>')
 def post(id):
   cur = g.db.execute('select title, text, created, id from entries where id = %d order by created asc' % id)
@@ -95,10 +106,23 @@ def post(id):
 
   return render_template('post.html', entry = entries[0], title = "", content = "")
 
+def get_entry(id):
+  e = g.db.execute('select title, text, created from entries where id = ?', [id]).fetchall()[0]
+  return {'title': e[0], 'content': e[1], 'date': e[2], 'id': id}
+
+@app.route('/tagged/<tag>')
+def tagged(tag):
+  entryids = g.db.execute('select entryid from entry_tags where tagid = ?', [tag_id(tag)]).fetchall()
+  entries = [get_entry(e[0]) for e in entryids]
+
+  return render_template('tagged.html', entries=entries, tag=tag)
+
 @app.route("/")
 def index():
   cur = g.db.execute('select title, text, created, id from entries order by id desc')
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
+
+  entries = [merge(e, all_tags(e)) for e in entries]
 
   return render_template('index.html', entries=entries)
 

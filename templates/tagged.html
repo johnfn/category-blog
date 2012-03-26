@@ -2,16 +2,16 @@
 <html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="static/js/bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.css"> </link>
-    <link rel="stylesheet" type="text/css" href="static/css/style.css"> </link>
+    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
     <title> blog - johnfn </title>
   </head>
   <body>
     <div class="container">
       <div class="hero-unit">
         <h1>johnfn's blog</h1>
-        <p> programming and the meaning of life </p>
+        <p> but only {{ tag }}-tagged posts </p>
       </div>
 
       <div class="row">
@@ -22,12 +22,6 @@
               <span class="datetime"> {{ entry.date }} </span>
               <a href="/{{ entry.id }}/edit"> (edit) </a>
               <div> {{ entry.content }} </div>
-              <div> 
-                tags: 
-                {% for tag in entry.tags %}
-                  {{ tag }}
-                {% endfor %}
-              </div>
             </div>
           {% endfor %}
         </div>
