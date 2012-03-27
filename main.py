@@ -49,12 +49,13 @@ def new_entry(title, text, id, date, tags):
   if date is None: date = datetime.datetime.now().strftime("%m/%d/%Y %I:%M%p")
 
   if id is None:
-    g.db.execute('insert into entries (title, text, created) values (?, ?, ?)',
+    cur = g.db.cursor()
+
+    cur.execute('insert into entries (title, text, created) values (?, ?, ?)',
         [title, text, date])
-    g.db.commit()
 
     # read id back
-    id = g.db.lastrowid
+    id = cur.lastrowid
   else:
     #TODO: This actually makes the name of this function incorrect.
     g.db.execute('update entries set title = ?, text = ?, created = ? where id = ?',
@@ -142,12 +143,28 @@ def get_entry(id):
   e = g.db.execute('select title, text, created from entries where id = ?', [id]).fetchall()[0]
   return {'title': e[0], 'content': e[1], 'date': e[2], 'id': id}
 
+@app.route('/tagged/<tag>/edit', methods=['POST'])
+def edit_tag(tag):
+  id = tag_id(tag)
+
+  if len(g.db.execute('select * from tag_desc where tagid = ?', [id]).fetchall()) > 0:
+    g.db.execute('update tag_desc set desc = ?', [request.form['desc']])
+  else:
+    g.db.execute('insert into tag_desc (tagid, desc) values (?, ?)', [id, request.form['desc']])
+
+  g.db.commit()
+
+  return redirect(url_for('tagged', tag=tag))
+
 @app.route('/tagged/<tag>')
 def tagged(tag):
   entryids = g.db.execute('select entryid from entry_tags where tagid = ?', [tag_id(tag)]).fetchall()
   entries = [get_entry(e[0]) for e in entryids]
+  description = ""
+  row = g.db.execute('select desc from tag_desc where tagid = ?', [tag_id(tag)]).fetchall()
+  if len(row) > 0: description = row[0][0]
 
-  return render_template('tagged.html', entries=entries, tag=tag)
+  return render_template('tagged.html', desc=description, entries=entries, tag=tag, auth=session.get('authed'))
 
 def delete_post(id):
   g.db.execute('delete from entries where id = ?', [id])
@@ -191,7 +208,6 @@ def index():
         tag_counts[tagname] = 0
       tag_counts[tagname] += 1
 
-  print res
   return render_template('index.html', entries=res, auth=session.get('authed'), tag_counts=tag_counts)
 
 if __name__ == "__main__":

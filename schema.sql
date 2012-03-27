@@ -16,3 +16,9 @@ create table entry_tags (
   entryid integer not null,
   tagid integer not null
 );
+
+create table tag_desc (
+  id integer primary key autoincrement,
+  tagid integer not null,
+  desc string not null
+);
