@@ -1,32 +1,21 @@
-<!DOCTYPE HTML>
-<html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
-    <title> blog - johnfn </title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="hero-unit">
-        <h1>indirection</h1>
-        <p> {{ tag }} </p>
-      </div>
+{% extends 'base.html' %}
+{% block body %}
+<div class="top-of-the-page">
+  <h1>indirection</h1>
+  <p> stories and ideas </p>
+</div>
 
-      <div class="row">
-        <div class="span8">
-          {% for entry in entries %}
-            <div class="entry">
-              <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
-              <span class="datetime"> {{ entry.date }} </span>
-              <a href="/{{ entry.id }}/edit"> (edit) </a>
-              <a href="/{{ entry.id }}/delete"> (delete) </a>
-              <div> {{ entry.content }} </div>
-            </div>
-          {% endfor %}
-        </div>
+<div class="row">
+  <div class="span8">
+    {% for entry in entries %}
+      <div class="entry">
+        <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
+        <span class="datetime"> {{ entry.date }} </span>
+        <a href="/{{ entry.id }}/edit"> (edit) </a>
+        <a href="/{{ entry.id }}/delete"> (delete) </a>
+        <div> {{ entry.content }} </div>
       </div>
-    </div>
-  </body>
-</html>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

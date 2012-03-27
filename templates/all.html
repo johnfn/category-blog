@@ -12,29 +12,15 @@
       <span class="new-entry"> <a href="{{ url_for('logout') }} "> logout </a> </span>
     {% endif %}
 
-    <h2> categories </h2>
-
-    <div style="padding-bottom: 10px">
-      {% for tag in tag_counts %}
-        <div>
-          <span class="entry-title"><a href="{{ url_for('tagged', tag=tag) }}">{{ tag }}</a></span> &mdash; {{ tag_counts[tag] }}
-        </div>
-      {% endfor %}
-    </div>
-
-    <h2> all entries </h2>
-    <div style="padding-bottom: 5px"> sorted by date </div>
-
     {% for entry in entries %}
       <div>
-        <a href="/{{ entry.id }}"> {{ entry.title }}</a>
+        <span class="entry-title"> <a href="/{{ entry.id }}"> {{ entry.title }}</a> </span>
         {% if auth %}
           <a href="/{{ entry.id }}/edit"> (edit) </a>
           <a href="/{{ entry.id }}/delete"> (delete) </a>
         {% endif %}
         <span class="datetime"> ({{ entry.date }}) </span>
         <span>
-          {% if entry.tags %} in categories {% endif %}
           {% for tag in entry.tags %}<a href="/tagged/{{ tag }}">{{ tag }}</a> {% else %} {% endfor %}
         </span>
       </div>

@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="hero-unit">
-  <h1>johnfn's blog</h1>
-<p> programming and the meaning of life </p>
+<div class="top-of-the-page">
+  <h1>indirection</h1>
+  <p> stories and ideas </p>
 </div>
 
 <div class="row">

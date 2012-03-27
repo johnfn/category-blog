@@ -51,23 +51,24 @@ def new_entry(title, text, id, date, tags):
   if id is None:
     g.db.execute('insert into entries (title, text, created) values (?, ?, ?)',
         [title, text, date])
+    g.db.commit()
+
+    # read id back
+    id = g.db.lastrowid
   else:
     #TODO: This actually makes the name of this function incorrect.
     g.db.execute('update entries set title = ?, text = ?, created = ? where id = ?',
         [title, text, date, id])
 
-  g.db.commit()
-
-  # read id back
-  id = g.db.execute('select id from entries where title = ? and text = ?', [title, text]).fetchall()[0][0]
-
   if tags is not None:
-    #TODO: Remove all old tagz.
+    g.db.execute('delete from entry_tags where entryid = ?', [id])
 
     taglist = [tag.strip() for tag in tags.split(",")]
 
     for tag in taglist:
       g.db.execute('insert into entry_tags (entryid, tagid) values (?, ?)', [id, tag_id(tag)])
+
+    g.db.commit()
 
 def check_auth(username, password):
   return username == 'johnfn' and password == [l[:-1] for l in file('password')][0]
@@ -112,11 +113,12 @@ def add_entry():
 def edit(id):
   if session.get('authed') is None: authenticate()
 
-  cur = g.db.execute('select title, text, created from entries where id = %d' % id)
+  cur = g.db.execute('select title, text, created from entries where id = ?', [id])
   entry = cur.fetchall()[0]
   date, time = entry[2].split(" ")
+  tags = ",".join(all_tags(id)['tags'])
 
-  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time)
+  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time, tags = tags)
 
 def merge(o1, o2):
   return dict(o1.items() + o2.items())
@@ -124,14 +126,14 @@ def merge(o1, o2):
 def tag_value(tagid):
   return g.db.execute('select value from tags where id = ?', [tagid]).fetchall()[0][0]
 
-def all_tags(e):
-  tag_list = [tag_value(entry[0]) for entry in g.db.execute('select tagid from entry_tags where entryid = ?', [e['id']])]
+def all_tags(id):
+  tag_list = [tag_value(entry[0]) for entry in g.db.execute('select tagid from entry_tags where entryid = ?', [id])]
 
   return {'tags': tag_list}
 
 @app.route('/<int:id>')
 def post(id):
-  cur = g.db.execute('select title, text, created, id from entries where id = %d order by created asc' % id)
+  cur = g.db.execute('select title, text, created, id from entries where id = ? order by created asc', [id])
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
 
   return render_template('post.html', entry = entries[0], title = "", content = "")
@@ -179,10 +181,18 @@ def delete(id):
 def index():
   cur = g.db.execute('select title, text, created, id from entries order by id desc')
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
+  res = []
+  tag_counts = {}
+  for e in entries:
+    entry_tags = all_tags(e['id'])
+    res.append(merge(e, entry_tags))
+    for tagname in entry_tags['tags']:
+      if not tagname in tag_counts:
+        tag_counts[tagname] = 0
+      tag_counts[tagname] += 1
 
-  entries = [merge(e, all_tags(e)) for e in entries]
-
-  return render_template('index.html', entries=entries, auth=session.get('authed'))
+  print res
+  return render_template('index.html', entries=res, auth=session.get('authed'), tag_counts=tag_counts)
 
 if __name__ == "__main__":
     app.run()
