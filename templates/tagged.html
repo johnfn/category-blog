@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
+{% block head %}
+  <script type="text/javascript">
+    $(function() {
+      $(".content").each(function(){ convert(this.innerHTML, $(this)); })
+    })
+  </script>
+{% endblock %}
 {% block body %}
 <div class="top-of-the-page">
   <h1><a href="{{ url_for('index') }}">indirection</a> &mdash; {{ tag }} </h1>
@@ -27,7 +34,7 @@
           <a href="/{{ entry.id }}/edit"> (edit) </a>
           <a href="/{{ entry.id }}/delete"> (delete) </a>
         {% endif %}
-        <div> {{ entry.content }} </div>
+        <div class="content"> {{ entry.content }} </div>
       </div>
     {% endfor %}
   </div>

@@ -6,19 +6,19 @@
 </div>
 
 <div class="row">
-  <div class="span8">
+  <div class="span12">
     {% if auth %}
       <span class="new-entry"> <a href="{{ url_for('admin') }} "> new </a> </span>
       <span class="new-entry"> <a href="{{ url_for('logout') }} "> logout </a> </span>
     {% endif %}
 
-    <h2> categories </h2>
-
     <div style="padding-bottom: 10px">
       {% for tag in tag_info %}
-        <div class="span3 well">
-          <span class="entry-title"><a href="{{ url_for('tagged', tag=tag.tag) }}">{{ tag.tag }}</a></span> ({{ tag.count }}) &mdash; {{ tag.desc }}
-        </div>
+        <a href="{{ url_for('tagged', tag=tag.tag) }}" class="no-underline">
+          <div class="span3 well hoverchange">
+            <span class="entry-title">{{ tag.tag }}</span> ({{ tag.count }}) &mdash; {{ tag.desc }}
+          </div>
+        </a>
       {% endfor %}
     </div>
   </div>

@@ -1,24 +1,37 @@
 {% extends 'base.html' %}
 {% block head %}
-<script type="text/javascript">
-  $(function() {
-    $("#inputdate").datepicker();
-  });
-</script>
+
+  <script type="text/javascript">
+    $(function() {
+      $("#inputdate").datepicker();
+      $("#content").keyup(function(event) {
+        convert($("#content").val(), $("#result"));
+      });
+    });
+  </script>
 {% endblock %}
 {% block body %}
-<form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-  <dl>
-    <dt>Title:
-    <dd><input type=text style="width: 500px" name=title value="{{ title }}">
-    <dd><input type=hidden name=id value="{{ id }}">
-    <dt>Text:
-    <dd><textarea name=content rows=5 style="width: 500px; height: 500px">{{ content }}</textarea>
-    <dt>Tags:
-    <dd><input type=text style="width: 500px" name=tags value="{{ tags }}">
-    <dt>Date:
-    <dd><input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" value="{{ time }}">
-    <dd><input type=submit value=Post>
-  </dl>
-</form>
+<div class="row">
+  <div class="span6">
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <dt>Title:
+        <dd><input type=text style="width: 80%" name=title value="{{ title }}">
+        <dd><input type=hidden name=id value="{{ id }}">
+        <dt>Text:
+        <dd><textarea id="content" name=content rows=5 style="width: 80%; height: 500px">{{ content }}</textarea>
+        <dt>Tags:
+        <dd><input type=text style="width: 80%" name=tags value="{{ tags }}">
+        <dt>Date:
+        <dd><input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" value="{{ time }}">
+        <dd><input type=submit value=Post>
+      </dl>
+    </form>
+  </div>
+  <div class="span6">
+    <h2> result: </h2>
+    <div id="result">
+    </div>
+  </div>
+</div>
 {% endblock %}
