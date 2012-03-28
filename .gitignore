@@ -1,5 +1,6 @@
 *.pyc
 *.sw?
 *.db
+venv
 password
 secretkey
