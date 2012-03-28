@@ -85,7 +85,7 @@ def admin():
 
 @app.route("/login", methods=['POST'])
 def login_post():
-  if request.form['username'] == "johnfn" and request.form['password'] == "password":
+  if request.form['username'] == "johnfn" and request.form['password'] == PASSWORD:
     session['authed'] = True
     return redirect(url_for('index'))
 
@@ -145,6 +145,7 @@ def get_entry(id):
 
 @app.route('/tagged/<tag>/edit', methods=['POST'])
 def edit_tag(tag):
+  if session.get('authed') is None: authenticate()
   id = tag_id(tag)
 
   if len(g.db.execute('select * from tag_desc where tagid = ?', [id]).fetchall()) > 0:
