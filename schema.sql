@@ -6,21 +6,18 @@ create table entries (
   created date not null
 );
 
+drop table if exists tags;
 create table tags (
   id integer primary key autoincrement,
-  value string not null
+  value string not null,
+  desc string not null,
+  longdesc string not null
 );
 
+drop table if exists entry_tags;
 create table entry_tags (
   id integer primary key autoincrement,
   entryid integer not null,
   tagid integer not null
 );
 
-create table tags_desc (
-  id integer primary key autoincrement,
-  value string not null,
-  tagid integer not null,
-  desc string not null,
-  longdesc string not null
-);

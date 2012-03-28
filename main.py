@@ -37,7 +37,7 @@ def tag_id(value):
   elems = cur.fetchall()
 
   if len(elems) == 0:
-    g.db.execute('insert into tags (value) values (?)', [value])
+    g.db.execute('insert into tags (value, desc, longdesc) values (?, ?, ?)', [value, "", ""])
     g.db.commit()
 
     cur = g.db.execute('select id from tags where value = ?', [value])
@@ -79,7 +79,7 @@ def authenticate():
 
 @app.route("/admin")
 def admin():
-  if session.get('authed') is None: authenticate()
+  if session.get('authed') is None: return authenticate()
 
   return render_template('admin.html')
 
@@ -88,6 +88,8 @@ def login_post():
   if request.form['username'] == "johnfn" and request.form['password'] == PASSWORD:
     session['authed'] = True
     return redirect(url_for('index'))
+  else:
+    return authenticate()
 
 @app.route("/logout")
 def logout():
@@ -100,7 +102,7 @@ def login():
 
 @app.route("/add", methods=['POST'])
 def add_entry():
-  if session.get('authed') is None: authenticate()
+  if session.get('authed') is None: return authenticate()
 
   new_entry( request.form['title']
            , request.form['content']
@@ -112,7 +114,7 @@ def add_entry():
 
 @app.route('/<int:id>/edit')
 def edit(id):
-  if session.get('authed') is None: authenticate()
+  if session.get('authed') is None: return authenticate()
 
   cur = g.db.execute('select title, text, created from entries where id = ?', [id])
   entry = cur.fetchall()[0]
@@ -145,16 +147,15 @@ def get_entry(id):
 
 @app.route('/tagged/<tag>/edit', methods=['POST'])
 def edit_tag(tag):
-  if session.get('authed') is None: authenticate()
-  id = tag_id(tag)
+  if session.get('authed') is None: return authenticate()
 
-  if len(g.db.execute('select * from tag_desc where tagid = ?', [id]).fetchall()) > 0:
-    g.db.execute('update tag_desc set desc = ?, longdesc = ?', [request.form['desc'], request.form['longdesc']])
+  if len(g.db.execute('select * from tags where value = ?', [tag]).fetchall()) > 0:
+    id = tag_id(tag)
+    g.db.execute('update tags set desc = ?, longdesc = ? where id = ?', [request.form['desc'], request.form['longdesc'], id])
   else:
-    g.db.execute('insert into tag_desc (tagid, desc, longdesc) values (?, ?, ?)', [id, request.form['desc'], request.form['longdesc']])
+    g.db.execute('insert into tags (value, desc, longdesc) values (?, ?, ?)', [tag, request.form['desc'], request.form['longdesc']])
 
   g.db.commit()
-
   return redirect(url_for('tagged', tag=tag))
 
 @app.route('/tagged/<tag>')
@@ -162,10 +163,14 @@ def tagged(tag):
   entryids = g.db.execute('select entryid from entry_tags where tagid = ?', [tag_id(tag)]).fetchall()
   entries = [get_entry(e[0]) for e in entryids]
   description = ""
-  row = g.db.execute('select desc from tag_desc where tagid = ?', [tag_id(tag)]).fetchall()
-  if len(row) > 0: description = row[0][0]
+  longdesc = ""
 
-  return render_template('tagged.html', desc=description, entries=entries, tag=tag, auth=session.get('authed'))
+  row = g.db.execute('select desc, longdesc from tags where id = ?', [tag_id(tag)]).fetchall()
+  if len(row) > 0:
+    description = row[0][0]
+    longdesc = row[0][1]
+
+  return render_template('tagged.html', desc=description, longdesc=longdesc, entries=entries, tag=tag, auth=session.get('authed'))
 
 def delete_post(id):
   g.db.execute('delete from entries where id = ?', [id])
@@ -174,7 +179,7 @@ def delete_post(id):
 
 @app.route('/<int:id>/delete/definitely', methods=['POST'])
 def definitely_delete(id):
-  if session.get('authed') is None: authenticate()
+  if session.get('authed') is None: return authenticate()
 
   delete_post(id)
 
@@ -191,7 +196,7 @@ def dump():
 
 @app.route('/<int:id>/delete')
 def delete(id):
-  if session.get('authed') is None: authenticate()
+  if session.get('authed') is None: return authenticate()
 
   return render_template('delete.html', id=id)
 
@@ -200,16 +205,15 @@ def index():
   cur = g.db.execute('select title, text, created, id from entries order by id desc')
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
   res = []
-  tag_counts = {}
-  for e in entries:
-    entry_tags = all_tags(e['id'])
-    res.append(merge(e, entry_tags))
-    for tagname in entry_tags['tags']:
-      if not tagname in tag_counts:
-        tag_counts[tagname] = 0
-      tag_counts[tagname] += 1
+  tag_info = []
+  every_tag = g.db.execute('select value, desc, longdesc, id from tags').fetchall()
+  for row in every_tag:
+    count = len(g.db.execute('select * from entry_tags where tagid = ?', [row[3]]).fetchall())
+    tag_info.append({'tag': row[0], 'desc': row[1], 'longdesc': row[2], 'count': count})
 
-  return render_template('index.html', entries=res, auth=session.get('authed'), tag_counts=tag_counts)
+  entries = [merge(e, all_tags(e['id'])) for e in entries]
+
+  return render_template('index.html', entries=entries, auth=session.get('authed'), tag_info=tag_info)
 
 if __name__ == "__main__":
     app.run()
