@@ -1,6 +1,6 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response
 from functools import wraps
-from sqlite3 import dbapi2 as sqlite3
+import psycopg2
 from contextlib import closing
 import datetime
 
@@ -13,7 +13,7 @@ app.debug=True
 app.secret_key = SECRET_KEY
 
 def connect_db():
-  return sqlite3.connect(DATABASE)
+  return psycopg2.connect("dbname=db user=postgres")
 
 @app.before_request
 def before_request():
@@ -37,7 +37,7 @@ def tag_id(value):
   elems = cur.fetchall()
 
   if len(elems) == 0:
-    g.db.execute('insert into tags (value, desc, longdesc) values (?, ?, ?)', [value, "", ""])
+    g.db.execute('insert into tags (value, description, longdesc) values (?, ?, ?)', [value, "", ""])
     g.db.commit()
 
     cur = g.db.execute('select id from tags where value = ?', [value])
@@ -151,9 +151,9 @@ def edit_tag(tag):
 
   if len(g.db.execute('select * from tags where value = ?', [tag]).fetchall()) > 0:
     id = tag_id(tag)
-    g.db.execute('update tags set desc = ?, longdesc = ? where id = ?', [request.form['desc'], request.form['longdesc'], id])
+    g.db.execute('update tags set description = ?, longdesc = ? where id = ?', [request.form['desc'], request.form['longdesc'], id])
   else:
-    g.db.execute('insert into tags (value, desc, longdesc) values (?, ?, ?)', [tag, request.form['desc'], request.form['longdesc']])
+    g.db.execute('insert into tags (value, description, longdesc) values (?, ?, ?)', [tag, request.form['desc'], request.form['longdesc']])
 
   g.db.commit()
   return redirect(url_for('tagged', tag=tag))
@@ -165,7 +165,7 @@ def tagged(tag):
   description = ""
   longdesc = ""
 
-  row = g.db.execute('select desc, longdesc from tags where id = ?', [tag_id(tag)]).fetchall()
+  row = g.db.execute('select description, longdesc from tags where id = ?', [tag_id(tag)]).fetchall()
   if len(row) > 0:
     description = row[0][0]
     longdesc = row[0][1]
@@ -206,7 +206,7 @@ def index():
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
   res = []
   tag_info = []
-  every_tag = g.db.execute('select value, desc, longdesc, id from tags').fetchall()
+  every_tag = g.db.execute('select value, description, longdesc, id from tags').fetchall()
   for row in every_tag:
     count = len(g.db.execute('select * from entry_tags where tagid = ?', [row[3]]).fetchall())
     tag_info.append({'tag': row[0], 'desc': row[1], 'longdesc': row[2], 'count': count})

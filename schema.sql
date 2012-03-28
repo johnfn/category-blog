@@ -1,22 +1,22 @@
 drop table if exists entries;
 create table entries (
-  id integer primary key autoincrement,
-  title string not null,
-  text string not null,
+  id serial primary key,
+  title text not null,
+  text text not null,
   created date not null
 );
 
 drop table if exists tags;
 create table tags (
-  id integer primary key autoincrement,
-  value string not null,
-  desc string not null,
-  longdesc string not null
+  id serial primary key,
+  value text not null,
+  description text not null,
+  longdesc text not null
 );
 
 drop table if exists entry_tags;
 create table entry_tags (
-  id integer primary key autoincrement,
+  id serial primary key,
   entryid integer not null,
   tagid integer not null
 );
