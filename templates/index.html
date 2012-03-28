@@ -16,11 +16,13 @@
 
     <div style="padding-bottom: 10px">
       {% for tag in tag_counts %}
-        <div>
+        <div class="span3 well">
           <span class="entry-title"><a href="{{ url_for('tagged', tag=tag) }}">{{ tag }}</a></span> &mdash; {{ tag_counts[tag] }}
         </div>
       {% endfor %}
     </div>
+  </div>
+  <div class="span8">
 
     <h2> everything </h2>
     <div style="padding-bottom: 5px"> sorted by date </div>

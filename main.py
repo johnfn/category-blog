@@ -149,9 +149,9 @@ def edit_tag(tag):
   id = tag_id(tag)
 
   if len(g.db.execute('select * from tag_desc where tagid = ?', [id]).fetchall()) > 0:
-    g.db.execute('update tag_desc set desc = ?', [request.form['desc']])
+    g.db.execute('update tag_desc set desc = ?, longdesc = ?', [request.form['desc'], request.form['longdesc']])
   else:
-    g.db.execute('insert into tag_desc (tagid, desc) values (?, ?)', [id, request.form['desc']])
+    g.db.execute('insert into tag_desc (tagid, desc, longdesc) values (?, ?, ?)', [id, request.form['desc'], request.form['longdesc']])
 
   g.db.commit()
 

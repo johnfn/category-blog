@@ -8,8 +8,10 @@
     {% if auth %}
       <form action="{{ url_for('edit_tag', tag = tag) }}" method=post class=add-entry>
         <dl>
-          <dt>Description:
+          <dt>Short description:
           <dd><input type=text style="width: 500px" name=desc value="{{ desc }}">
+          <dt>Longer description:
+          <dd><textarea name=content rows=5 style="width: 500px; height: 500px">{{ longdesc }}</textarea>
           <dd><input type=submit value=Post>
         </dl>
       </form>
