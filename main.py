@@ -230,7 +230,7 @@ def index():
 if __name__ == "__main__":
   port = 0
   try:
-    port = os.environ['PORT']
+    port = int(os.environ['PORT'])
   except Exception, e:
     port = 5000
 
