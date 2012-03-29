@@ -4,6 +4,7 @@ import psycopg2
 from contextlib import closing
 import datetime
 import os
+import urlparse
 
 # SHARED_DATABASE_URL
 try:
