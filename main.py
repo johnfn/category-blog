@@ -13,7 +13,10 @@ app.debug=True
 app.secret_key = SECRET_KEY
 
 def connect_db():
-  return psycopg2.connect("dbname=db user=postgres")
+  conn = psycopg2.connect("dbname=db user=grantm")
+  conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+
+  return conn.cursor()
 
 @app.before_request
 def before_request():
@@ -29,19 +32,17 @@ def init_db():
   """Creates the database tables."""
   with closing(connect_db()) as db:
     with app.open_resource('schema.sql') as f:
-      db.cursor().executescript(f.read())
-    db.commit()
+      db.execute(f.read())
 
 def tag_id(value):
-  cur = g.db.execute('select id from tags where value = ?', [value])
-  elems = cur.fetchall()
+  g.db.execute('select id from tags where value = %s', (value,))
+  elems = g.db.fetchall()
 
   if len(elems) == 0:
-    g.db.execute('insert into tags (value, description, longdesc) values (?, ?, ?)', [value, "", ""])
-    g.db.commit()
+    g.db.execute('insert into tags (value, description, longdesc) values (%s, %s, %s)', (value, "", ""))
 
-    cur = g.db.execute('select id from tags where value = ?', [value])
-    elems = cur.fetchall()
+    g.db.execute('select id from tags where value = %s', (value,))
+    elems = g.db.fetchall()
 
   return elems[0][0]
 
@@ -49,27 +50,22 @@ def new_entry(title, text, id, date, tags):
   if date is None: date = datetime.datetime.now().strftime("%m/%d/%Y %I:%M%p")
 
   if id is None:
-    cur = g.db.cursor()
+    g.db.execute('insert into entries (title, text, created) values (%s, %s, %s) returning id',
+        (title, text, date))
+    id = g.db.fetchall()[0]
 
-    cur.execute('insert into entries (title, text, created) values (?, ?, ?)',
-        [title, text, date])
-
-    # read id back
-    id = cur.lastrowid
   else:
     #TODO: This actually makes the name of this function incorrect.
-    g.db.execute('update entries set title = ?, text = ?, created = ? where id = ?',
-        [title, text, date, id])
+    g.db.execute('update entries set title = %s, text = %s, created = %s where id = %s',
+        (title, text, date, id))
 
   if tags is not None:
-    g.db.execute('delete from entry_tags where entryid = ?', [id])
+    g.db.execute('delete from entry_tags where entryid = %s', (id,))
 
     taglist = [tag.strip() for tag in tags.split(",")]
 
     for tag in taglist:
-      g.db.execute('insert into entry_tags (entryid, tagid) values (?, ?)', [id, tag_id(tag)])
-
-    g.db.commit()
+      g.db.execute('insert into entry_tags (entryid, tagid) values (%s, %s)', (id, tag_id(tag)))
 
 def check_auth(username, password):
   return username == 'johnfn' and password == [l[:-1] for l in file('password')][0]
@@ -116,8 +112,8 @@ def add_entry():
 def edit(id):
   if session.get('authed') is None: return authenticate()
 
-  cur = g.db.execute('select title, text, created from entries where id = ?', [id])
-  entry = cur.fetchall()[0]
+  g.db.execute('select title, text, created from entries where id = %s', (id,))
+  entry = g.db.fetchall()[0]
   date, time = entry[2].split(" ")
   tags = ",".join(all_tags(id)['tags'])
 
@@ -127,45 +123,50 @@ def merge(o1, o2):
   return dict(o1.items() + o2.items())
 
 def tag_value(tagid):
-  return g.db.execute('select value from tags where id = ?', [tagid]).fetchall()[0][0]
+  g.db.execute('select value from tags where id = %s', (tagid,))
+  return g.db.fetchall()[0][0]
 
 def all_tags(id):
-  tag_list = [tag_value(entry[0]) for entry in g.db.execute('select tagid from entry_tags where entryid = ?', [id])]
+  g.db.execute('select tagid from entry_tags where entryid = %s', (id,))
+  tag_list = [tag_value(entry[0]) for entry in g.db.fetchall()]
 
   return {'tags': tag_list}
 
 @app.route('/<int:id>')
 def post(id):
-  cur = g.db.execute('select title, text, created, id from entries where id = ? order by created asc', [id])
-  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
+  g.db.execute('select title, text, created, id from entries where id = %s order by created asc', (id,))
+  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in g.db.fetchall()]
 
   return render_template('post.html', entry = entries[0], title = "", content = "")
 
 def get_entry(id):
-  e = g.db.execute('select title, text, created from entries where id = ?', [id]).fetchall()[0]
+  g.db.execute('select title, text, created from entries where id = %s', (id,))
+  e = g.db.fetchall()[0]
   return {'title': e[0], 'content': e[1], 'date': e[2], 'id': id}
 
 @app.route('/tagged/<tag>/edit', methods=['POST'])
 def edit_tag(tag):
   if session.get('authed') is None: return authenticate()
 
-  if len(g.db.execute('select * from tags where value = ?', [tag]).fetchall()) > 0:
+  g.db.execute('select * from tags where value = %s', (tag,))
+  if len(g.db.fetchall()) > 0:
     id = tag_id(tag)
-    g.db.execute('update tags set description = ?, longdesc = ? where id = ?', [request.form['desc'], request.form['longdesc'], id])
+    g.db.execute('update tags set description = %s, longdesc = %s where id = %s', (request.form['desc'], request.form['longdesc'], id))
   else:
-    g.db.execute('insert into tags (value, description, longdesc) values (?, ?, ?)', [tag, request.form['desc'], request.form['longdesc']])
+    g.db.execute('insert into tags (value, description, longdesc) values (%s, %s, %s)', (tag, request.form['desc'], request.form['longdesc']))
 
-  g.db.commit()
   return redirect(url_for('tagged', tag=tag))
 
 @app.route('/tagged/<tag>')
 def tagged(tag):
-  entryids = g.db.execute('select entryid from entry_tags where tagid = ?', [tag_id(tag)]).fetchall()
+  g.db.execute('select entryid from entry_tags where tagid = %s', (tag_id(tag),))
+  entryids = g.db.fetchall()
   entries = [get_entry(e[0]) for e in entryids]
   description = ""
   longdesc = ""
 
-  row = g.db.execute('select description, longdesc from tags where id = ?', [tag_id(tag)]).fetchall()
+  g.db.execute('select description, longdesc from tags where id = %s', (tag_id(tag),))
+  row = g.db.fetchall()
   if len(row) > 0:
     description = row[0][0]
     longdesc = row[0][1]
@@ -173,9 +174,8 @@ def tagged(tag):
   return render_template('tagged.html', desc=description, longdesc=longdesc, entries=entries, tag=tag, auth=session.get('authed'))
 
 def delete_post(id):
-  g.db.execute('delete from entries where id = ?', [id])
-  g.db.execute('delete from entry_tags where entryid = ?', [id])
-  g.db.commit()
+  g.db.execute('delete from entries where id = %s', (id,))
+  g.db.execute('delete from entry_tags where entryid = %s', (id,))
 
 @app.route('/<int:id>/delete/definitely', methods=['POST'])
 def definitely_delete(id):
@@ -202,13 +202,16 @@ def delete(id):
 
 @app.route("/")
 def index():
-  cur = g.db.execute('select title, text, created, id from entries order by id desc')
-  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in cur.fetchall()]
+  g.db.execute('select title, text, created, id from entries order by id desc')
+  entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in g.db.fetchall()]
   res = []
   tag_info = []
-  every_tag = g.db.execute('select value, description, longdesc, id from tags').fetchall()
+  g.db.execute('select value, description, longdesc, id from tags')
+  every_tag = g.db.fetchall()
+
   for row in every_tag:
-    count = len(g.db.execute('select * from entry_tags where tagid = ?', [row[3]]).fetchall())
+    g.db.execute('select * from entry_tags where tagid = %s', [row[3]])
+    count = len(g.db.fetchall())
     tag_info.append({'tag': row[0], 'desc': row[1], 'longdesc': row[2], 'count': count})
 
   entries = [merge(e, all_tags(e['id'])) for e in entries]

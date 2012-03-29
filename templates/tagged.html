@@ -6,37 +6,36 @@
     })
   </script>
 {% endblock %}
-{% block body %}
-<div class="top-of-the-page">
-  <h1><a href="{{ url_for('index') }}">indirection</a> &mdash; {{ tag }} </h1>
-  <p>
-    {{ longdesc }}
-    {% if auth %}
-      <form action="{{ url_for('edit_tag', tag = tag) }}" method=post class=add-entry>
-        <dl>
-          <dt>Short description:
-          <dd><input type=text style="width: 500px" name=desc value="{{ desc }}">
-          <dt>Longer description:
-          <dd><textarea name=longdesc rows=5 style="width: 500px; height: 100px">{{ longdesc }}</textarea>
-          <dd><input type=submit value=Post>
-        </dl>
-      </form>
-    {% endif %}
-  </p>
-</div>
 
-<div class="row">
-  <div class="span8">
-    {% for entry in entries %}
-      <div class="entry">
-        <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
-        {% if auth %}
-          <a href="/{{ entry.id }}/edit"> (edit) </a>
-          <a href="/{{ entry.id }}/delete"> (delete) </a>
-        {% endif %}
-        <div class="content"> {{ entry.content }} </div>
-      </div>
-    {% endfor %}
+{% block title %}
+  {{ longdesc }}
+{% endblock %}
+
+{% block body %}
+  {% if auth %}
+    <form action="{{ url_for('edit_tag', tag = tag) }}" method=post class=add-entry>
+      <dl>
+        <dt>Short description:
+        <dd><input type=text style="width: 500px" name=desc value="{{ desc }}">
+        <dt>Longer description:
+        <dd><textarea name=longdesc rows=5 style="width: 500px; height: 100px">{{ longdesc }}</textarea>
+        <dd><input type=submit value=Post>
+      </dl>
+    </form>
+  {% endif %}
+
+  <div class="row">
+    <div class="span8">
+      {% for entry in entries %}
+        <div class="entry">
+          <a href="/{{ entry.id }}"><h2 class="post-title"> {{ entry.title }} </h2></a>
+          {% if auth %}
+            <a href="/{{ entry.id }}/edit"> (edit) </a>
+            <a href="/{{ entry.id }}/delete"> (delete) </a>
+          {% endif %}
+          <div class="content"> {{ entry.content }} </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
-</div>
 {% endblock %}
