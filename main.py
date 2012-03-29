@@ -21,7 +21,17 @@ app.debug=True
 app.secret_key = SECRET_KEY
 
 def connect_db():
-  conn = psycopg2.connect(os.environ['SHARED_DATABASE_URL'])
+  url = urlparse.urlparse(os.environ['DATABASE_URL'])
+
+  db_info = {
+    'NAME': url.path[1:],
+    'USER': url.username,
+    'PASSWORD': url.password,
+    'HOST': url.hostname,
+    'PORT': url.port,
+  }
+
+  conn = psycopg2.connect(dbname=db_info['NAME'], user=db_info['USER'], password=db_info['PASSWORD'], host=db_info['HOST'], port=db_info['PORT'])
   conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
   return conn.cursor()
