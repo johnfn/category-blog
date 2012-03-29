@@ -5,8 +5,7 @@ from contextlib import closing
 import datetime
 import os
 
-DATABASE = 'posts.db'
-
+# SHARED_DATABASE_URL
 try:
   SECRET_KEY = os.environ['SECRETKEY']
 except Exception, e:
@@ -22,7 +21,7 @@ app.debug=True
 app.secret_key = SECRET_KEY
 
 def connect_db():
-  conn = psycopg2.connect("dbname=db user=grantm")
+  conn = psycopg2.connect(dbname="db", user="grantm", host=os.environ[SHARED_DATABASE_URL])
   conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
   return conn.cursor()
