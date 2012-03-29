@@ -228,4 +228,10 @@ def index():
   return render_template('index.html', entries=entries, auth=session.get('authed'), tag_info=tag_info)
 
 if __name__ == "__main__":
-    app.run()
+  port = 0
+  try:
+    port = os.environ['PORT']
+  except Exception, e:
+    port = 5000
+
+  app.run(port=port)
