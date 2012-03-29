@@ -3,10 +3,19 @@ from functools import wraps
 import psycopg2
 from contextlib import closing
 import datetime
+import os
 
 DATABASE = 'posts.db'
-SECRET_KEY = open('secretkey').readlines()[0]
-PASSWORD = open('password').readlines()[0][:-1]
+
+try:
+  SECRET_KEY = os.environ['SECRET_KEY']
+except Exception, e:
+  SECRET_KEY = open('secretkey').readlines()[0]
+
+try:
+  PASSWORD = os.environ['PASSWORD']
+except Exception, e:
+  PASSWORD = open('password').readlines()[0][::-1]
 
 app = Flask(__name__)
 app.debug=True
