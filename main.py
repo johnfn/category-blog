@@ -8,7 +8,7 @@ import os
 DATABASE = 'posts.db'
 
 try:
-  SECRET_KEY = os.environ['SECRET_KEY']
+  SECRET_KEY = os.environ['SECRETKEY']
 except Exception, e:
   SECRET_KEY = open('secretkey').readlines()[0]
 
