@@ -15,24 +15,29 @@ except Exception, e:
 try:
   PASSWORD = os.environ['PASSWORD']
 except Exception, e:
-  PASSWORD = open('password').readlines()[0][::-1]
+  PASSWORD = open('password').readlines()[0][:-1]
 
 app = Flask(__name__)
 app.debug=True
 app.secret_key = SECRET_KEY
 
 def connect_db():
-  url = urlparse.urlparse(os.environ['DATABASE_URL'])
+  try:
+    # If we're on Heroku, use their postgres url.
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
 
-  db_info = {
-    'NAME': url.path[1:],
-    'USER': url.username,
-    'PASSWORD': url.password,
-    'HOST': url.hostname,
-    'PORT': url.port,
-  }
+    db_info = {
+      'NAME': url.path[1:],
+      'USER': url.username,
+      'PASSWORD': url.password,
+      'HOST': url.hostname,
+      'PORT': url.port,
+    }
 
-  conn = psycopg2.connect(dbname=db_info['NAME'], user=db_info['USER'], password=db_info['PASSWORD'], host=db_info['HOST'], port=db_info['PORT'])
+    conn = psycopg2.connect(dbname=db_info['NAME'], user=db_info['USER'], password=db_info['PASSWORD'], host=db_info['HOST'], port=db_info['PORT'])
+  except Exception, e:
+    conn = psycopg2.connect("dbname=db user=grantm")
+
   conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
   return conn.cursor()
@@ -133,7 +138,7 @@ def edit(id):
 
   g.db.execute('select title, text, created from entries where id = %s', (id,))
   entry = g.db.fetchall()[0]
-  date, time = entry[2].split(" ")
+  date, time = entry[2].strftime("%m/%d/%Y %I:%M%p").split(" ")
   tags = ",".join(all_tags(id)['tags'])
 
   return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time, tags = tags)
