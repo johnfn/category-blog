@@ -13,7 +13,7 @@
       {% for tag in tag_info %}
         <a href="{{ url_for('tagged', tag=tag.tag) }}" class="no-underline">
           <div class="span3 well hoverchange">
-            <p><span class="entry-title">{{ tag.tag }}</span> ({{ tag.count }})</p> &mdash; {{ tag.desc }}
+            <span class="entry-title">{{ tag.tag }}</span> ({{ tag.count }}) &mdash; {{ tag.desc }}
           </div>
         </a>
       {% endfor %}
