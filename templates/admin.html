@@ -3,10 +3,62 @@
 
   <script type="text/javascript">
     $(function() {
+      var postid = ""+(new Date());
+      var ID = 'indirectionstorage';
+
+      function autosave() {
+        var vals = JSON.parse(localStorage.getItem(ID));
+        if (vals == null) vals = {};
+
+        vals[postid] = $("#content").val();
+        localStorage.setItem(ID, JSON.stringify(vals));
+      }
+
       $("#inputdate").datepicker();
       $("#content").keyup(function(event) {
+        $("#rightheader").html("result:")
         convert($("#content").val(), $("#result"));
+        autosave();
       });
+
+      $("#submit").click(function(e) {
+        var vals = JSON.parse(localStorage.getItem(ID));
+
+        vals[postid] = $("#result").html();
+        vals[postid + "notvisible"] = true;
+        localStorage.setItem(ID, JSON.stringify(vals));
+      });
+
+      function showDrafts(){
+        var drafts = JSON.parse(localStorage.getItem(ID));
+
+        for (var draft in drafts) {
+          if (draft.indexOf("notvisible") == -1) {
+            (function(draft, draftcontent){
+              var draftnode = $("<div><h3><a>" + draft + "</a></h3>" + draftcontent.slice(0, 100) + "</div>");
+              draftnode.click(function(){
+                postid = draft;
+                $("#content").val(draftcontent);
+              });
+
+              var removenode = $("<a><span style='font-size: .6em'>[x] </span></a>").click(function() {
+                if (window.confirm("Are you sure?")) {
+                  var vals = JSON.parse(localStorage.getItem(ID));
+                  delete vals[draft];
+                  localStorage.setItem(ID, JSON.stringify(vals));
+
+                  draftnode.hide();
+                }
+              });
+
+              draftnode.children().prepend(removenode);
+              $("#drafts").append(draftnode);
+            })(draft, drafts[draft]);
+          }
+        }
+      }
+
+      showDrafts();
     });
   </script>
 {% endblock %}
@@ -24,13 +76,15 @@
         <dd><input type=text style="width: 80%" name=tags value="{{ tags }}">
         <dt>Date:
         <dd><input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" value="{{ time }}">
-        <dd><input type=submit value=Post>
+        <dd><input type=submit value=Post id="submit">
       </dl>
     </form>
   </div>
   <div class="span6">
-    <h2> result: </h2>
+    <h2 id="rightheader"> drafts: </h2>
     <div id="result">
+      <div id="drafts">
+      </div>
     </div>
   </div>
 </div>
