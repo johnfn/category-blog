@@ -105,6 +105,8 @@ def admin():
 
 @app.route("/login", methods=['POST'])
 def login_post():
+  if session.get('authed') is not None:
+    return "You're already logged in, numbnuts!"
   if request.form['username'] == "johnfn" and request.form['password'] == PASSWORD:
     session['authed'] = True
     return redirect(url_for('index'))

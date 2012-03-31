@@ -29,6 +29,12 @@
         localStorage.setItem(ID, JSON.stringify(vals));
       });
 
+      $("#timectls").hide();
+      $("#changedate").click(function() {
+        $("#timectls").show();
+        $("#nowdiv").hide();
+      });
+
       function showDrafts(){
         var drafts = JSON.parse(localStorage.getItem(ID));
 
@@ -68,14 +74,21 @@
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
       <dl>
         <dt>Title:
-        <dd><input type=text style="width: 80%" name=title value="{{ title }}">
+        <dd><input type=text name=title value="{{ title }}">
         <dd><input type=hidden name=id value="{{ id }}">
         <dt>Text:
         <dd><textarea id="content" name=content rows=5 style="width: 80%; height: 500px">{{ content }}</textarea>
-        <dt>Tags:
-        <dd><input type=text style="width: 80%" name=tags value="{{ tags }}">
+        <dt>Tags: <dd><input type=text style="width: 80%" name=tags value="{{ tags }}">
         <dt>Date:
-        <dd><input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" value="{{ time }}">
+        <dd><span id='nowdiv'>
+            Now.
+            <a href:"javascript:void(0)" id="changedate">Change date.</a>
+          </span>
+          <span id='timectls'>
+            <input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" id = "inputtime" value="{{ time }}">
+          </span>
+          <p> </p>
+        <dt>
         <dd><input type=submit value=Post id="submit">
       </dl>
     </form>
