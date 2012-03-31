@@ -80,15 +80,16 @@
         <dd><textarea id="content" name=content rows=5 style="width: 80%; height: 500px">{{ content }}</textarea>
         <dt>Tags: <dd><input type=text style="width: 80%" name=tags value="{{ tags }}">
         <dt>Date:
-        <dd><span id='nowdiv'>
+        <span id='nowdiv' style='font-weight: normal'>
             Now.
             <a href:"javascript:void(0)" id="changedate">Change date.</a>
           </span>
           <span id='timectls'>
-            <input type="text" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" id = "inputtime" value="{{ time }}">
+            <input type="text" style="width: 30%" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" id = "inputtime" style="width: 30%" value="{{ time }}">
           </span>
-          <p> </p>
-        <dt>
+        <dt>Visible:
+        <input type="checkbox" name="vehicle" value="Car" checked />
+        <p></p>
         <dd><input type=submit value=Post id="submit">
       </dl>
     </form>
