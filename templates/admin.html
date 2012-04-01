@@ -74,7 +74,7 @@
     <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
       <dl>
         <dt>Title:
-        <dd><input type=text name=title value="{{ title }}">
+        <dd><input type=text style="width: 80%" name=title value="{{ title }}">
         <dd><input type=hidden name=id value="{{ id }}">
         <dt>Text:
         <dd><textarea id="content" name=content rows=5 style="width: 80%; height: 500px">{{ content }}</textarea>
@@ -88,7 +88,7 @@
             <input type="text" style="width: 30%" name="date" id="inputdate" value="{{ date }}"><input type="text" name="time" id = "inputtime" style="width: 30%" value="{{ time }}">
           </span>
         <dt>Visible:
-        <input type="checkbox" name="vehicle" value="Car" checked />
+        <input type="checkbox" name="visible" value="visible" {{ visible }} />
         <p></p>
         <dd><input type=submit value=Post id="submit">
       </dl>

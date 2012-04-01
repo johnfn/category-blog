@@ -70,8 +70,11 @@ def tag_id(value):
 
   return elems[0][0]
 
-def new_entry(title, text, id, date, tags):
+def new_entry(title, text, id, date, tags, visible):
   if date is None: date = datetime.datetime.now().strftime("%m/%d/%Y %I:%M%p")
+
+  taglist = [tag.strip() for tag in tags.split(",")]
+  if visible is None: taglist.append("invisible")
 
   if id is None:
     g.db.execute('insert into entries (title, text, created) values (%s, %s, %s) returning id',
@@ -83,10 +86,8 @@ def new_entry(title, text, id, date, tags):
     g.db.execute('update entries set title = %s, text = %s, created = %s where id = %s',
         (title, text, date, id))
 
-  if tags is not None:
+  if len(tags) > 0:
     g.db.execute('delete from entry_tags where entryid = %s', (id,))
-
-    taglist = [tag.strip() for tag in tags.split(",")]
 
     for tag in taglist:
       g.db.execute('insert into entry_tags (entryid, tagid) values (%s, %s)', (id, tag_id(tag)))
@@ -130,7 +131,8 @@ def add_entry():
            , request.form['content']
            , request.form['id'] if request.form['id'].strip() != "" else None
            , request.form['date'] + " " + request.form['time'] if request.form['date'] else None
-           , request.form['tags'] if request.form['tags'].strip() != "" else None)
+           , request.form['tags'] if request.form['tags'].strip() != "" else ""
+           , request.form.get('visible', None))
 
   return redirect(url_for('index'))
 
@@ -140,10 +142,16 @@ def edit(id):
 
   g.db.execute('select title, text, created from entries where id = %s', (id,))
   entry = g.db.fetchall()[0]
+  visible = "checked"
   date, time = entry[2].strftime("%m/%d/%Y %I:%M%p").split(" ")
+  taglist = all_tags(id)['tags']
+
+  if "invisible" in taglist:
+    visible = ""
+
   tags = ",".join(all_tags(id)['tags'])
 
-  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time, tags = tags)
+  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time, tags = tags, visible = visible)
 
 def merge(o1, o2):
   return dict(o1.items() + o2.items())
