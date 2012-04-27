@@ -2,6 +2,10 @@ body {
   border-left: 20px;
 }
 
+.content {
+  font:1.063em/1.7em "Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+}
+
 post-title {
 	border-bottom: 1px solid #000;
 }

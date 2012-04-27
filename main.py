@@ -21,6 +21,7 @@ app = Flask(__name__)
 app.debug=True
 app.secret_key = SECRET_KEY
 
+
 def connect_db():
   try:
     # If we're on Heroku, use their postgres url.
@@ -246,7 +247,8 @@ def index():
   for row in every_tag:
     g.db.execute('select * from entry_tags where tagid = %s', [row[3]])
     count = len(g.db.fetchall())
-    tag_info.append({'tag': row[0], 'desc': row[1], 'longdesc': row[2], 'count': count})
+    if count > 0:
+      tag_info.append({'tag': row[0], 'desc': row[1], 'longdesc': row[2], 'count': count})
 
   entries = [merge(e, all_tags(e['id'])) for e in entries]
 
