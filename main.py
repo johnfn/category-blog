@@ -152,7 +152,7 @@ def edit(id):
 
   tags = ",".join(all_tags(id)['tags'])
 
-  return render_template('admin.html', title = entry[0], content = entry[1].encode('ascii', 'ignore'), id = id, date = date, time = time, tags = tags, visible = visible)
+  return render_template('admin.html', title = entry[0], content = entry[1].decode('ascii', 'ignore'), id = id, date = date, time = time, tags = tags, visible = visible)
 
 def merge(o1, o2):
   return dict(o1.items() + o2.items())
@@ -170,7 +170,7 @@ def all_tags(id):
 @app.route('/<int:id>')
 def post(id):
   g.db.execute('select title, text, created, id from entries where id = %s order by created asc', (id,))
-  entries = [{'title': row[0], 'content': row[1].encode('ascii', 'ignore'), 'date': row[2], 'id': row[3]} for row in g.db.fetchall()]
+  entries = [{'title': row[0], 'content': row[1].decode('ascii', 'ignore'), 'date': row[2], 'id': row[3]} for row in g.db.fetchall()]
 
   return render_template('post.html', entry = entries[0], title = "", content = "")
 
@@ -227,7 +227,7 @@ def dump():
   for line in g.db.iterdump():
     result += line + '<br>'
 
-  return render_template('dump.html', dump=result.encode('ascii', 'ignore'))
+  return render_template('dump.html', dump=result.decode('ascii', 'ignore'))
 
 @app.route('/<int:id>/delete')
 def delete(id):
