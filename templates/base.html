@@ -18,13 +18,13 @@
     <title> indirection </title>
   </head>
   <body>
-    <div class="top-of-the-page">
-      <center>
-        <a href="{{ url_for('index') }}"><h1>indirection</h1></a>
-        <p> {% block title %} {% endblock %} </p>
-      </center>
-    </div>
     <div class="container">
+      <div class="top-of-the-page">
+        <center>
+          <a href="{{ url_for('index') }}"><h1>indirection</h1></a>
+          <p> {% block title %} {% endblock %} </p>
+        </center>
+      </div>
       {% block body %} {% endblock %}
 
       <div id="footer">

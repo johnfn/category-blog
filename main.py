@@ -152,7 +152,7 @@ def edit(id):
 
   tags = ",".join(all_tags(id)['tags'])
 
-  return render_template('admin.html', title = entry[0], content = entry[1], id = id, date = date, time = time, tags = tags, visible = visible)
+  return render_template('admin.html', title = entry[0], content = entry[1].encode('ascii', 'ignore'), id = id, date = date, time = time, tags = tags, visible = visible)
 
 def merge(o1, o2):
   return dict(o1.items() + o2.items())
@@ -227,7 +227,7 @@ def dump():
   for line in g.db.iterdump():
     result += line + '<br>'
 
-  return render_template('dump.html', dump=result)
+  return render_template('dump.html', dump=result.encode('ascii', 'ignore'))
 
 @app.route('/<int:id>/delete')
 def delete(id):
