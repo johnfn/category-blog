@@ -33,7 +33,7 @@
             <a href="/{{ entry.id }}/edit"> (edit) </a>
             <a href="/{{ entry.id }}/delete"> (delete) </a>
           {% endif %}
-          <div class="content"> {{ entry.content }} </div>
+          <div class="content"> {{ entry.content.decode('ascii', 'ignore') }} </div>
         </div>
       {% endfor %}
     </div>
