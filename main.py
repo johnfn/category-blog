@@ -172,7 +172,7 @@ def post(id):
   g.db.execute('select title, text, created, id from entries where id = %s order by created asc', (id,))
   entries = [{'title': row[0], 'content': row[1], 'date': row[2], 'id': row[3]} for row in g.db.fetchall()]
 
-  return render_template('post.html', entry = entries[0], title = "", content = "")
+  return render_template('post.html', entry = entries[0].encode('ascii', 'ignore'), title = "", content = "")
 
 def get_entry(id):
   g.db.execute('select title, text, created from entries where id = %s', (id,))
