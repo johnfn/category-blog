@@ -12,6 +12,10 @@ Setting up Flask, psycopg and Heroku in combination is notoriously undocumented.
 
 2. Run `python -c 'from main import init_db; init_db()'`
 
+## analytics
+
+The category blog has support for Google Analytics. Just drop the code GA gives you into static/js/analytics.js
+
 ## notes
 
 Some of my SQL is pretty sloppy. I may rewrite it in the future.

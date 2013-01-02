@@ -5,6 +5,7 @@
     <script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.js"></script>
     <script type="text/javascript" src="/static/js/showdown.js"></script>
+    <script type="text/javascript" src="/static/js/analytics.js"></script>
     <script type="text/javascript">
       function convert(src_text, $dest) {
         var html = (new Showdown.converter()).makeHtml(src_text);
@@ -28,7 +29,7 @@
       {% block body %} {% endblock %}
 
       <div id="footer">
-        made by johnfn. this website is open source software.
+        made by johnfn. this website is <a href="https://github.com/johnfn/category-blog">open source software</a>.
       </div>
     </div>
   </body>
