@@ -5,7 +5,6 @@
     <script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.js"></script>
     <script type="text/javascript" src="/static/js/showdown.js"></script>
-    <script type="text/javascript" src="/static/js/analytics.js"></script>
     <script type="text/javascript">
       function convert(src_text, $dest) {
         var html = (new Showdown.converter()).makeHtml(src_text);
@@ -17,6 +16,18 @@
     <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
     {% block head %} {% endblock %}
     <title> indirection </title>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-37374581-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
   </head>
   <body>
     <div class="container">
