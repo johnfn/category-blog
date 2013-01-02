@@ -2,7 +2,7 @@
 {% block head %}
 <script type="text/javascript">
 $(function(){
-    var result = $("#content").html().replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    var result = $("#content").html().replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/TTT/g, "&lt;T&gt;"); //dont even ask
 
     convert(result, $("#content"));
 });
