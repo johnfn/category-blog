@@ -4,7 +4,7 @@
 $(function(){
     var result = $("#content").html().replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
-    convert($("#content").html(), result);
+    convert(result, $("#content"));
 });
 </script>
 {% endblock %}
