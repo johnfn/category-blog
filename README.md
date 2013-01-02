@@ -14,7 +14,7 @@ Setting up Flask, psycopg and Heroku in combination is notoriously undocumented.
 
 ## analytics
 
-The category blog has support for Google Analytics. Just drop the code GA gives you into static/js/analytics.js
+The category blog has support for Google Analytics. Just drop the code GA gives you into static/js/analytics.js (and remove mine!)
 
 ## notes
 
