@@ -34,6 +34,7 @@
       <div class="top-of-the-page">
         <center>
           <a href="{{ url_for('index') }}"><h1>{% block title %} {% endblock %} </h1></a>
+          <p> {% block date %} {% endblock %} </p>
         </center>
       </div>
       {% block body %} {% endblock %}
