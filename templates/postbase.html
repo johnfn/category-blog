@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/static/js/showdown.js"></script>
+    <script type="text/javascript">
+      function convert(src_text, $dest) {
+        var html = (new Showdown.converter()).makeHtml(src_text);
+        $dest.html(html);
+      }
+    </script>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/ui-lightness/jquery-ui-1.8.18.custom.min.css"> </link>
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"> </link>
+    {% block head %} {% endblock %}
+    <title> indirection </title>
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-37374581-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="top-of-the-page">
+        <center>
+          <a href="{{ url_for('index') }}"><h1>{% block title %} {% endblock %} </h1></a>
+        </center>
+      </div>
+      {% block body %} {% endblock %}
+
+      <div id="footer">
+        made by johnfn. this website is <a href="https://github.com/johnfn/category-blog">open source software</a>.
+      </div>
+    </div>
+  </body>
+</html>

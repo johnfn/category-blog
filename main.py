@@ -196,7 +196,7 @@ def edit_tag(tag):
 def tagged(tag):
   g.db.execute('select entryid from entry_tags where tagid = %s', (tag_id(tag),))
   entryids = g.db.fetchall()
-  entries = [get_entry(e[0]) for e in entryids]
+  entries = [get_entry(e[0]) for e in entryids][::-1] #reverse order - latest first
   description = ""
   longdesc = ""
 
